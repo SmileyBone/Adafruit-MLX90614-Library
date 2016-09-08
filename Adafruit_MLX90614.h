@@ -39,7 +39,7 @@
 #define MLX90614_TARANGE 0x23
 #define MLX90614_EMISS 0x24
 #define MLX90614_CONFIG 0x25
-#define MLX90614_ADDR 0x0E
+#define MLX90614_ADDR 0x2E
 #define MLX90614_ID1 0x3C
 #define MLX90614_ID2 0x3D
 #define MLX90614_ID3 0x3E
@@ -57,14 +57,22 @@ class Adafruit_MLX90614  {
   double readObjectTempF(void);
   double readAmbientTempF(void);
 
+  //load [ambient, object] temp data into the data array of at least length two.
+  void readRawTemps(uint16_t *data);
+
+  //print the values of the eeprom over serial
   void readEPPROM(void);
-  void setAddress(uint8_t addr);
+
+  /*
+  Set the device address to the given address. Return 1 on sucess and 0 on fail.
+  */
+  uint8_t setAddress(uint8_t new_address);
 
  private:
   float readTemp(uint8_t reg);
 
   uint8_t _addr;
-  uint8_t crc8(const uint8_t *vptr, int len);
+  uint8_t crc8(const uint8_t *ptr, int len);
   uint16_t read16(uint8_t addr);
-  void write16(uint8_t saddr, uint8_t daddr, uint16_t data);
+  void write16(uint8_t address, uint8_t command, uint16_t data);
 };

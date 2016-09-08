@@ -49,13 +49,10 @@ double Adafruit_MLX90614::readAmbientTempC(void) {
   return readTemp(MLX90614_TA);
 }
 
-float Adafruit_MLX90614::readTemp(uint8_t reg) {
-  float temp;
 
-  temp = read16(reg);
-  temp *= .02;
-  temp  -= 273.15;
-  return temp;
+void Adafruit_MLX90614::readRawTemps(uint16_t *data){
+  data[0] = read16(MLX90614_TA); //load the ambient temp
+  data[1] = read16(MLX90614_TOBJ1); //load the object temp
 }
 
 void Adafruit_MLX90614::readEPPROM(void){
@@ -65,18 +62,30 @@ void Adafruit_MLX90614::readEPPROM(void){
   }
 }
 
-void Adafruit_MLX90614::setAddress(uint8_t addr){
-  write16(0x00, 0x2E,  0x00); //write zeros to clear the epprom
-  delay(150);
-  write16(0x00, 0x2E, addr);//write the new address
+uint8_t Adafruit_MLX90614::setAddress(uint8_t new_address){
+  //note the device address 0x00 means all devices will respond / listen
+  write16(0x00, MLX90614_ADDR,  0x00); //write zeros to clear the epprom
+  delay(150); //wait for the EEPROM to respond per the datasheet
+  write16(0x00, MLX90614_ADDR, new_address);//write the new address
+  delay(100); //see above
+
+  return new_address == read16(MLX90614_ADDR);
 }
 
 /*********************************************************************/
+float Adafruit_MLX90614::readTemp(uint8_t reg) {
+  float temp;
+
+  temp = read16(reg);
+  temp *= .02;
+  temp  -= 273.15;
+  return temp;
+}
 
 //grabbed from https://chromium.googlesource.com/chromiumos/platform/vboot_reference/+/master/firmware/lib/crc8.c
-uint8_t Adafruit_MLX90614::crc8(const uint8_t *vptr, int len)
+uint8_t Adafruit_MLX90614::crc8(const uint8_t *ptr, int len)
 {
-	const uint8_t *data = vptr;
+	const uint8_t *data = ptr;
 	unsigned crc = 0;
 	int i, j;
 	for (j = len; j; j--, data++) {
