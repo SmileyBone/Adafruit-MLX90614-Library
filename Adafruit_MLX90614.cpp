@@ -30,7 +30,6 @@ boolean Adafruit_MLX90614::begin(void) {
 
 //////////////////////////////////////////////////////
 
-
 double Adafruit_MLX90614::readObjectTempF(void) {
   return (readTemp(MLX90614_TOBJ1) * 9 / 5) + 32;
 }
